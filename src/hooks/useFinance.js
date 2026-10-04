@@ -1,0 +1,148 @@
+import { useState, useEffect } from 'react';
+
+export function useFinance() {
+  const [salary, setSalary] = useState(() => {
+    return Number(localStorage.getItem('cts_salary')) || 0;
+  });
+
+  const [cutoffDay, setCutoffDay] = useState(() => {
+    return Number(localStorage.getItem('cts_cutoffDay')) || 30;
+  });
+
+  const [expenses, setExpenses] = useState(() => {
+    const saved = localStorage.getItem('cts_expenses');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const [fixedExpenses, setFixedExpenses] = useState(() => {
+    const saved = localStorage.getItem('cts_fixedExpenses');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const [isSimulatingAll, setIsSimulatingAll] = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem('cts_salary', salary);
+    localStorage.setItem('cts_cutoffDay', cutoffDay);
+    localStorage.setItem('cts_expenses', JSON.stringify(expenses));
+    localStorage.setItem('cts_fixedExpenses', JSON.stringify(fixedExpenses));
+  }, [salary, cutoffDay, expenses, fixedExpenses]);
+
+  const totalPaidFixed = fixedExpenses
+    .filter(item => isSimulatingAll || item.paid)
+    .reduce((acc, item) => acc + Number(item.amount), 0);
+
+  const totalFixed = fixedExpenses.reduce((acc, item) => acc + Number(item.amount), 0);
+
+  const netSalary = salary - totalPaidFixed;
+  const totalSpent = expenses.reduce((acc, item) => acc + Number(item.amount), 0);
+  const totalRemaining = netSalary - totalSpent;
+
+  // Cálculo exacto de los días restantes usando el calendario legal
+  const getDaysRemaining = () => {
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth();
+    const currentDay = today.getDate();
+
+    const validCutoff = cutoffDay && cutoffDay > 0 && cutoffDay <= 31 ? cutoffDay : 30;
+
+    let targetDate = new Date(currentYear, currentMonth, validCutoff);
+
+    if (currentDay > validCutoff) {
+      targetDate = new Date(currentYear, currentMonth + 1, validCutoff);
+    }
+
+    const diffTime = targetDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    return diffDays > 0 ? diffDays : 1;
+  };
+
+  const daysLeft = getDaysRemaining();
+
+  // Filtrar los gastos hechos estrictamente HOY (desde las 00:00 hrs)
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+
+  const spentToday = expenses
+    .filter(item => item.timestamp && item.timestamp >= startOfToday.getTime())
+    .reduce((acc, item) => acc + Number(item.amount), 0);
+
+  // Gasto diario base según los días que quedan del mes
+  const baseDailyAllowance = daysLeft > 0 ? Math.round(totalRemaining / daysLeft) : 0;
+
+  // Disponible para hoy: Lo que te toca hoy menos lo que ya gastaste hoy
+  // (Cualquier ahorro o gasto de días anteriores ya viene reflejado de forma natural en totalRemaining)
+  const rawDailyBudget = baseDailyAllowance - spentToday;
+  const dailyBudget = rawDailyBudget > 0 ? rawDailyBudget : 0;
+
+  const updateSettings = (newSalary, newCutoffDay) => {
+    setSalary(newSalary);
+    setCutoffDay(newCutoffDay);
+  };
+
+  const addFixedExpense = (title, amount) => {
+    const newItem = {
+      id: Date.now().toString(),
+      title: title.trim(),
+      amount: Number(amount),
+      paid: false
+    };
+    setFixedExpenses([newItem, ...fixedExpenses]);
+  };
+
+  const toggleFixedPaid = (id) => {
+    setFixedExpenses(fixedExpenses.map(item => 
+      item.id === id ? { ...item, paid: !item.paid } : item
+    ));
+  };
+
+  const deleteFixedExpense = (id) => {
+    setFixedExpenses(fixedExpenses.filter(item => item.id !== id));
+  };
+
+  const addExpense = (amount, description) => {
+    const newExpense = {
+      id: Date.now().toString(),
+      amount: Number(amount),
+      description: description || 'Gasto rápido',
+      timestamp: Date.now(), // Guarda la hora exacta para saber si fue hoy
+      date: new Date().toLocaleDateString('es-CL', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
+    };
+    setExpenses([newExpense, ...expenses]);
+  };
+
+  const deleteExpense = (id) => {
+    setExpenses(expenses.filter(item => item.id !== id));
+  };
+
+  const resetData = () => {
+    setSalary(0);
+    setExpenses([]);
+    setFixedExpenses([]);
+    localStorage.clear();
+  };
+
+  return {
+    salary,
+    netSalary,
+    cutoffDay,
+    expenses,
+    fixedExpenses,
+    totalFixed,
+    totalSpent,
+    totalRemaining,
+    daysLeft,
+    dailyBudget,
+    isSimulatingAll,
+    setIsSimulatingAll,
+    updateSettings,
+    addFixedExpense,
+    toggleFixedPaid,
+    deleteFixedExpense,
+    addExpense,
+    deleteExpense,
+    resetData
+  };
+}
