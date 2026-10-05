@@ -1,14 +1,21 @@
 import { useState } from 'react';
 import { Settings, DollarSign, Calendar } from 'lucide-react';
+import { parseCLPInput, rawNumber } from '../utils/formatters';
 
 export default function SetupModal({ initialSalary, initialCutoff, onSave }) {
-  const [salary, setSalary] = useState(initialSalary || '');
+  const [salary, setSalary] = useState(initialSalary ? parseCLPInput(initialSalary.toString()) : '');
   const [cutoffDay, setCutoffDay] = useState(initialCutoff || 30);
+
+  const handleSalaryChange = (e) => {
+    const formatted = parseCLPInput(e.target.value);
+    setSalary(formatted);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!salary || Number(salary) <= 0) return;
-    onSave(Number(salary), Number(cutoffDay));
+    const numericSalary = rawNumber(salary);
+    if (!numericSalary || numericSalary <= 0) return;
+    onSave(numericSalary, Number(cutoffDay));
   };
 
   return (
@@ -34,10 +41,11 @@ export default function SetupModal({ initialSalary, initialCutoff, onSave }) {
                 <DollarSign className="w-4 h-4" />
               </span>
               <input
-                type="number"
+                type="text"
+                inputMode="numeric"
                 value={salary}
-                onChange={(e) => setSalary(e.target.value)}
-                placeholder="Ej: 750000"
+                onChange={handleSalaryChange}
+                placeholder="Ej: 750.000"
                 required
                 className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-9 pr-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors"
               />
