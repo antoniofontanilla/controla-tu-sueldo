@@ -100,7 +100,7 @@ export default function Dashboard({
           </div>
           
           <p className="text-xs font-medium opacity-90 mb-4">
-            Dinero libre después de descontar gastos fijos pagados y gastos diarios.
+            
           </p>
 
           {/* Botón verde para Ingreso Extra justo debajo */}
