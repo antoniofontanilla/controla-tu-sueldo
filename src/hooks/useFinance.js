@@ -62,6 +62,7 @@ export function useFinance() {
   const daysLeft = getDaysRemaining();
 
   // Filtrar los gastos hechos estrictamente HOY (desde las 00:00 hrs)
+  // Filtrar los gastos hechos estrictamente HOY (desde las 00:00 hrs)
   const startOfToday = new Date();
   startOfToday.setHours(0, 0, 0, 0);
 
@@ -69,13 +70,12 @@ export function useFinance() {
     .filter(item => item.timestamp && item.timestamp >= startOfToday.getTime())
     .reduce((acc, item) => acc + Number(item.amount), 0);
 
-  // Gasto diario base según los días que quedan del mes
-  const baseDailyAllowance = daysLeft > 0 ? Math.round(totalRemaining / daysLeft) : 0;
+  // Reconstruimos el remanente antes del gasto de hoy para sacar la cuota exacta que te tocaba hoy
+  const remainingBeforeToday = totalRemaining + spentToday;
+  const baseDailyAllowance = daysLeft > 0 ? Math.round(remainingBeforeToday / daysLeft) : 0;
 
-  // Disponible para hoy: Lo que te toca hoy menos lo que ya gastaste hoy
-  // (Cualquier ahorro o gasto de días anteriores ya viene reflejado de forma natural en totalRemaining)
-  const rawDailyBudget = baseDailyAllowance - spentToday;
-  const dailyBudget = rawDailyBudget > 0 ? rawDailyBudget : 0;
+  // Disponible para hoy: Lo que te tocaba hoy menos lo que gastaste hoy (dando el negativo exacto)
+  const dailyBudget = baseDailyAllowance - spentToday;
 
   const updateSettings = (newSalary, newCutoffDay) => {
     setSalary(newSalary);

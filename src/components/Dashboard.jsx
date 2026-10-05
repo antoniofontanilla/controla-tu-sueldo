@@ -78,7 +78,7 @@ export default function Dashboard({
               <Calendar className="w-4 h-4 text-emerald-400" />
               Disponible para hoy
             </div>
-            <div className="text-lg font-bold text-white">
+            <div className={`text-lg font-bold ${dailyBudget < 0 ? 'text-rose-500' : 'text-emerald-400'}`}>
               {formatCLP(dailyBudget)}
             </div>
             <div className="text-[10px] text-slate-500 mt-0.5">{daysLeft} días restantes</div>
@@ -95,7 +95,6 @@ export default function Dashboard({
             <div className="text-[10px] text-slate-500 mt-0.5">{expenses.length} movimientos</div>
           </div>
         </div>
-
         {/* Módulo de Gastos Fijos */}
         <FixedExpenses
           fixedExpenses={fixedExpenses}

@@ -29,7 +29,7 @@ export default function ExpenseForm({ onAddExpense }) {
       </div>
 
       <form onSubmit={handleSubmit} className="flex gap-2">
-        <div className="flex-1 relative">
+        <div className="flex-[1.2] relative">
           <span className="absolute left-3 top-2.5 text-xs text-slate-500 font-bold">$</span>
           <input
             type="text"
@@ -37,7 +37,7 @@ export default function ExpenseForm({ onAddExpense }) {
             value={displayAmount}
             onChange={handleAmountChange}
             placeholder="Monto"
-            className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-7 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+            className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-7 pr-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
           />
         </div>
 
@@ -46,7 +46,7 @@ export default function ExpenseForm({ onAddExpense }) {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="¿En qué gastaste? (opcional)"
-          className="flex-[1.5] bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+          className="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
         />
 
         <button
