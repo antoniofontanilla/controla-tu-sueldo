@@ -54,13 +54,13 @@ export default function FixedExpenses({
 
       {isOpen && (
         <div className="space-y-3 pt-2 border-t border-slate-800">
-          <form onSubmit={handleSubmit} className="flex gap-2">
+          <form onSubmit={handleSubmit} className="flex flex-wrap gap-2">
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Ej: Arriendo, Luz..."
-              className="flex-[1.5] bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+              className="flex-1 min-w-[110px] bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
             />
             <input
               type="text"
@@ -68,11 +68,11 @@ export default function FixedExpenses({
               value={displayAmount}
               onChange={handleAmountChange}
               placeholder="Monto ($)"
-              className="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+              className="w-28 sm:flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
             />
             <button
               type="submit"
-              className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-3 py-2 rounded-xl transition-colors flex items-center justify-center text-xs shadow-lg shadow-indigo-950"
+              className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-3 py-2 rounded-xl transition-colors flex items-center justify-center text-xs shadow-lg shadow-indigo-950 shrink-0"
             >
               <Plus className="w-4 h-4" />
             </button>
