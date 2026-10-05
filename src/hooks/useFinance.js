@@ -19,6 +19,12 @@ export function useFinance() {
     return saved ? JSON.parse(saved) : [];
   });
 
+  // Nuevo estado para los ingresos extras
+  const [incomes, setIncomes] = useState(() => {
+    const saved = localStorage.getItem('cts_incomes');
+    return saved ? JSON.parse(saved) : [];
+  });
+
   const [isSimulatingAll, setIsSimulatingAll] = useState(false);
 
   useEffect(() => {
@@ -26,7 +32,8 @@ export function useFinance() {
     localStorage.setItem('cts_cutoffDay', cutoffDay);
     localStorage.setItem('cts_expenses', JSON.stringify(expenses));
     localStorage.setItem('cts_fixedExpenses', JSON.stringify(fixedExpenses));
-  }, [salary, cutoffDay, expenses, fixedExpenses]);
+    localStorage.setItem('cts_incomes', JSON.stringify(incomes));
+  }, [salary, cutoffDay, expenses, fixedExpenses, incomes]);
 
   const totalPaidFixed = fixedExpenses
     .filter(item => isSimulatingAll || item.paid)
@@ -34,9 +41,14 @@ export function useFinance() {
 
   const totalFixed = fixedExpenses.reduce((acc, item) => acc + Number(item.amount), 0);
 
+  // Sumar el total de ingresos extras
+  const totalIncomes = incomes.reduce((acc, item) => acc + Number(item.amount), 0);
+
   const netSalary = salary - totalPaidFixed;
   const totalSpent = expenses.reduce((acc, item) => acc + Number(item.amount), 0);
-  const totalRemaining = netSalary - totalSpent;
+  
+  // El total restante ahora incluye los ingresos extras sumados
+  const totalRemaining = netSalary - totalSpent + totalIncomes;
 
   // Cálculo exacto de los días restantes usando el calendario legal
   const getDaysRemaining = () => {
@@ -62,7 +74,6 @@ export function useFinance() {
   const daysLeft = getDaysRemaining();
 
   // Filtrar los gastos hechos estrictamente HOY (desde las 00:00 hrs)
-  // Filtrar los gastos hechos estrictamente HOY (desde las 00:00 hrs)
   const startOfToday = new Date();
   startOfToday.setHours(0, 0, 0, 0);
 
@@ -74,7 +85,7 @@ export function useFinance() {
   const remainingBeforeToday = totalRemaining + spentToday;
   const baseDailyAllowance = daysLeft > 0 ? Math.round(remainingBeforeToday / daysLeft) : 0;
 
-  // Disponible para hoy: Lo que te tocaba hoy menos lo que gastaste hoy (dando el negativo exacto)
+  // Disponible para hoy: Lo que te tocaba hoy menos lo que gastaste hoy
   const dailyBudget = baseDailyAllowance - spentToday;
 
   const updateSettings = (newSalary, newCutoffDay) => {
@@ -107,7 +118,7 @@ export function useFinance() {
       id: Date.now().toString(),
       amount: Number(amount),
       description: description || 'Gasto rápido',
-      timestamp: Date.now(), // Guarda la hora exacta para saber si fue hoy
+      timestamp: Date.now(),
       date: new Date().toLocaleDateString('es-CL', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
     };
     setExpenses([newExpense, ...expenses]);
@@ -116,11 +127,27 @@ export function useFinance() {
   const deleteExpense = (id) => {
     setExpenses(expenses.filter(item => item.id !== id));
   };
+  const deleteIncome = (id) => {
+  setIncomes(incomes.filter(item => item.id !== id));
+};
+
+  // Función para agregar un ingreso extra
+  const addIncome = (amount, description) => {
+    const newIncome = {
+      id: Date.now().toString(),
+      amount: Number(amount),
+      description: description || 'Ingreso extra',
+      timestamp: Date.now(),
+      date: new Date().toLocaleDateString('es-CL', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
+    };
+    setIncomes([newIncome, ...incomes]);
+  };
 
   const resetData = () => {
     setSalary(0);
     setExpenses([]);
     setFixedExpenses([]);
+    setIncomes([]);
     localStorage.clear();
   };
 
@@ -130,8 +157,10 @@ export function useFinance() {
     cutoffDay,
     expenses,
     fixedExpenses,
+    incomes,
     totalFixed,
     totalSpent,
+    totalIncomes,
     totalRemaining,
     daysLeft,
     dailyBudget,
@@ -143,6 +172,7 @@ export function useFinance() {
     deleteFixedExpense,
     addExpense,
     deleteExpense,
+    addIncome,
     resetData
   };
 }

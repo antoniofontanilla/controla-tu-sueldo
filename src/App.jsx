@@ -9,6 +9,7 @@ export default function App() {
     netSalary,
     cutoffDay,
     expenses,
+    incomes,          // <-- 1. Extraemos incomes del hook
     fixedExpenses,
     totalFixed,
     totalSpent,
@@ -23,6 +24,8 @@ export default function App() {
     deleteFixedExpense,
     addExpense,
     deleteExpense,
+    addIncome,        // <-- Extraemos addIncome
+    deleteIncome,     // <-- 2. Extraemos deleteIncome del hook
     resetData
   } = useFinance();
 
@@ -49,6 +52,7 @@ export default function App() {
         netSalary={netSalary}
         cutoffDay={cutoffDay}
         expenses={expenses}
+        incomes={incomes}             // <-- 3. Se lo pasamos al Dashboard
         fixedExpenses={fixedExpenses}
         totalFixed={totalFixed}
         totalSpent={totalSpent}
@@ -62,6 +66,8 @@ export default function App() {
         onDeleteFixed={deleteFixedExpense}
         onAddExpense={addExpense}
         onDeleteExpense={deleteExpense}
+        onAddIncome={addIncome}       
+        onDeleteIncome={deleteIncome} // <-- 4. Pasamos la función de eliminar al Dashboard
         onOpenSettings={() => setIsSettingsOpen(true)}
         onReset={handleReset}
       />

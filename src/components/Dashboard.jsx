@@ -1,4 +1,5 @@
-import { Wallet, Calendar, TrendingDown, RefreshCw, Settings } from 'lucide-react';
+import { useState } from 'react';
+import { Wallet, Calendar, TrendingDown, RefreshCw, Settings, PlusCircle } from 'lucide-react';
 import { formatCLP } from '../utils/formatters';
 import ExpenseForm from './ExpenseForm';
 import ExpenseHistory from './ExpenseHistory';
@@ -9,6 +10,7 @@ export default function Dashboard({
   netSalary,
   cutoffDay,
   expenses,
+  incomes = [],
   fixedExpenses,
   totalFixed,
   totalSpent,
@@ -22,9 +24,38 @@ export default function Dashboard({
   onDeleteFixed,
   onAddExpense,
   onDeleteExpense,
+  onAddIncome,
+  onDeleteIncome,
   onOpenSettings,
   onReset
 }) {
+  const [showIncomeInput, setShowIncomeInput] = useState(false);
+  const [incomeAmount, setIncomeAmount] = useState('');
+  const [incomeDescription, setIncomeDescription] = useState('');
+
+  // Función para formatear mientras se escribe (ej: 1000 -> 1.000)
+  const handleAmountChange = (e) => {
+    const rawValue = e.target.value.replace(/\D/g, ''); // Solo números
+    if (rawValue === '') {
+      setIncomeAmount('');
+      return;
+    }
+    const numericValue = Number(rawValue);
+    setIncomeAmount(numericValue.toLocaleString('es-CL'));
+  };
+
+  const handleIncomeSubmit = (e) => {
+    e.preventDefault();
+    // Limpiamos los puntos para enviar el número real a la función
+    const cleanNumber = Number(incomeAmount.replace(/\./g, ''));
+    if (!cleanNumber || cleanNumber <= 0) return;
+    
+    onAddIncome(cleanNumber, incomeDescription);
+    setIncomeAmount('');
+    setIncomeDescription('');
+    setShowIncomeInput(false);
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 p-4 pb-12">
       <div className="max-w-md mx-auto space-y-4">
@@ -63,12 +94,63 @@ export default function Dashboard({
               <Wallet className="w-3.5 h-3.5" /> Sueldo base: {formatCLP(salary)}
             </span>
           </div>
+          
           <div className="text-4xl font-black tracking-tight my-2">
             {formatCLP(totalRemaining)}
           </div>
-          <p className="text-xs font-medium opacity-90">
+          
+          <p className="text-xs font-medium opacity-90 mb-4">
             Dinero libre después de descontar gastos fijos pagados y gastos diarios.
           </p>
+
+          {/* Botón verde para Ingreso Extra justo debajo */}
+          {!showIncomeInput ? (
+            <button
+              onClick={() => setShowIncomeInput(true)}
+              className="w-full mt-1 bg-emerald-950 text-emerald-100 hover:bg-emerald-900 font-bold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition-colors shadow-sm"
+            >
+              <PlusCircle className="w-4 h-4" />
+              Ingreso Extra
+            </button>
+          ) : (
+            <form onSubmit={handleIncomeSubmit} className="mt-3 bg-emerald-900/40 p-3 rounded-2xl border border-emerald-900/60 space-y-2">
+              <div className="text-xs font-bold text-emerald-950 flex justify-between items-center">
+                <span>Registrar Ingreso Extra</span>
+                <button 
+                  type="button" 
+                  onClick={() => setShowIncomeInput(false)}
+                  className="text-emerald-950 hover:text-white text-xs font-bold"
+                >
+                  ✕ Cancelar
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="Monto ($)"
+                  value={incomeAmount}
+                  onChange={handleAmountChange}
+                  className="w-full bg-emerald-950/60 border border-emerald-800/60 rounded-xl px-3 py-2 text-xs text-white placeholder-emerald-300/60 focus:outline-none focus:ring-1 focus:ring-emerald-400"
+                  autoFocus
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="Motivo (ej. Venta, Bono)"
+                  value={incomeDescription}
+                  onChange={(e) => setIncomeDescription(e.target.value)}
+                  className="w-full bg-emerald-950/60 border border-emerald-800/60 rounded-xl px-3 py-2 text-xs text-white placeholder-emerald-300/60 focus:outline-none focus:ring-1 focus:ring-emerald-400"
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full bg-emerald-950 hover:bg-emerald-900 text-white font-bold py-2 rounded-xl text-xs transition-colors shadow"
+              >
+                Sumar al Total Restante
+              </button>
+            </form>
+          )}
         </div>
 
         {/* Tarjetas secundarias (Presupuesto diario y Gastado Total) */}
@@ -95,6 +177,7 @@ export default function Dashboard({
             <div className="text-[10px] text-slate-500 mt-0.5">{expenses.length} movimientos</div>
           </div>
         </div>
+
         {/* Módulo de Gastos Fijos */}
         <FixedExpenses
           fixedExpenses={fixedExpenses}
@@ -110,7 +193,12 @@ export default function Dashboard({
         <ExpenseForm onAddExpense={onAddExpense} />
 
         {/* Historial Reciente */}
-        <ExpenseHistory expenses={expenses} onDeleteExpense={onDeleteExpense} />
+        <ExpenseHistory
+          expenses={expenses}
+          incomes={incomes}
+          onDeleteExpense={onDeleteExpense}
+          onDeleteIncome={onDeleteIncome}
+        />
 
       </div>
     </div>
