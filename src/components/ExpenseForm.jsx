@@ -28,37 +28,36 @@ export default function ExpenseForm({ onAddExpense }) {
         Registrar Gasto Rápido
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-2">
-        {/* Fila superior: Monto con ancho completo y más protagonismo */}
-        <div className="relative">
-          <span className="absolute left-3.5 top-3 text-sm text-slate-500 font-bold">$</span>
+      <form onSubmit={handleSubmit} className="flex gap-2">
+        {/* Casilla de monto con un tamaño equilibrado y texto mediano */}
+        <div className="w-[38%] relative">
+          <span className="absolute left-3 top-2 text-xs text-slate-500 font-bold">$</span>
           <input
             type="text"
             inputMode="numeric"
             value={displayAmount}
             onChange={handleAmountChange}
-            placeholder="Monto a gastar"
-            className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-8 pr-4 py-2.5 text-base text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-bold"
+            placeholder="Monto"
+            className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-7 pr-2 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-semibold"
           />
         </div>
 
-        {/* Fila inferior: Descripción más compacta y botón */}
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="¿En qué gastaste? (opcional)"
-            className="w-[65%] bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
-          />
+        {/* Casilla de descripción más compacta */}
+        <input
+          type="text"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="¿En qué gastaste?"
+          className="w-[42%] bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+        />
 
-          <button
-            type="submit"
-            className="w-[35%] bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-2 rounded-xl transition-colors text-xs shadow-lg shadow-emerald-950 whitespace-nowrap"
-          >
-            Gastar
-          </button>
-        </div>
+        {/* Botón */}
+        <button
+          type="submit"
+          className="w-[20%] bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-2 rounded-xl transition-colors text-xs shadow-lg shadow-emerald-950 whitespace-nowrap flex items-center justify-center"
+        >
+          Gastar
+        </button>
       </form>
     </div>
   );
